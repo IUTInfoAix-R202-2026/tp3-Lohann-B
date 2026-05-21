@@ -26,6 +26,7 @@ public class CompteurFXML extends Application {
   @Override
   public void start(Stage primaryStage) throws Exception {
     Parent racine = FXMLLoader.load(getClass().getResource("CompteurView.fxml"));
+
     primaryStage.setTitle("Compteur FXML");
     primaryStage.setScene(new Scene(racine));
     primaryStage.show();
