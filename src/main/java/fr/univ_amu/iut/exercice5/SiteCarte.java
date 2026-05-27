@@ -1,5 +1,6 @@
 package fr.univ_amu.iut.exercice5;
 
+import java.io.IOException;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -71,24 +72,18 @@ public class SiteCarte extends HBox {
    * racine et de contrôleur).
    */
   public SiteCarte() {
-    // TODO exercice 5 : assembler le FXMLLoader pour le pattern fx:root.
-    //
-    // 1. Construire un FXMLLoader avec getClass().getResource("SiteCarte.fxml").
-    // 2. Lui dire que la racine du FXML doit être CET objet : loader.setRoot(this).
-    // 3. Lui dire que le contrôleur doit être CET objet aussi :
-    // loader.setController(this).
-    // 4. Appeler loader.load() (qui peut lever IOException, à propager via
-    // RuntimeException
-    // pour ne pas surcharger la signature du constructeur).
 
     FXMLLoader fxmlLoader =
-        new FXMLLoader(); // Le root et le controller sont deja instancié dans le fxml
+        new FXMLLoader(getClass().getResource("SiteCarte.fxml")); // Le root et le controller sont
+    // deja instancié dans le fxml
     fxmlLoader.setRoot(this);
     fxmlLoader.setController(this);
+
+    // On redirige les IOException que peuvent retourner le fxmlLoader
     try {
       fxmlLoader.load();
-    } catch (Exception e) {
-      // Repropager le IOException ??
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
 
@@ -114,6 +109,16 @@ public class SiteCarte extends HBox {
     // changement, puis appeler majBadge(...) une première fois avec la valeur
     // courante pour
     // initialiser l'affichage.
+
+    //
+    labelCarre.textProperty().bind(numeroCarre);
+    labelNom.textProperty().bind(nomConvivial);
+    labelNbPoints.textProperty().bind(nombrePoints.asString().concat(" points d'écoute"));
+    labelNbPassages.textProperty().bind(nombrePassages.asString().concat(" passages"));
+
+    joursDepuisDernierPassage.addListener((obs, ancien, nouveau) -> majBadge(nouveau.intValue()));
+    majBadge(getJoursDepuisDernierPassage());
+    ;
   }
 
   /**
@@ -131,6 +136,20 @@ public class SiteCarte extends HBox {
     // - sinon si jours < 7 : texte "Il y a Nj", classe "badge-fresh"
     // - sinon si jours <= 30 : texte "Il y a Nj", classe "badge-stale"
     // - sinon : texte "Il y a Nj", classe "badge-cold"
+    labelBadge.getStyleClass().removeAll("badge-fresh", "badge-stale", "badge-cold");
+    if (jours < 0) {
+      labelBadge.getStyleClass().add("badge-cold");
+      labelBadge.setText("Jamais utilisé");
+    } else {
+      labelBadge.setText("Il y a " + jours + "j");
+      if (jours < 7) {
+        labelBadge.getStyleClass().add("badge-fresh");
+      } else if (jours <= 30) {
+        labelBadge.getStyleClass().add("badge-stale");
+      } else {
+        labelBadge.getStyleClass().add("badge-cold");
+      }
+    }
   }
 
   // ---------------------------------------------------------------------
